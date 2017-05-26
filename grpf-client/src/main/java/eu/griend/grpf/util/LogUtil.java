@@ -16,27 +16,23 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package eu.griend.grpf.event;
+package eu.griend.grpf.util;
 
-import java.io.Serializable;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
-import eu.griend.grpf.util.LogUtil;
-
-public class GrapefruitListener implements Serializable {
-	private static final long serialVersionUID = -5929596847879314179L;
-
-	public GrapefruitListener() {
-	}
-
-	public void commandReloadEvent(GrapefruitEvent event) {
-		System.out.println(LogUtil.format("reload"));
-	}
+public class LogUtil {
+	private static final DateFormat FORMAT = new SimpleDateFormat("YYYY-MM-dd HH:mm:ss");
 	
-	public void commandStartEvent(GrapefruitEvent event) {
-		System.out.println(LogUtil.format("start"));
-	}
-	
-	public void commandStopEvent(GrapefruitEvent event) {
-		System.out.println(LogUtil.format("stop"));
+	public static String format(String message) {
+		StringBuilder tmp = new StringBuilder();
+		tmp.append(FORMAT.format(new Date()));
+		tmp.append(" grpf[");
+		tmp.append(ProcessUtil.getPID());
+		tmp.append("] ");
+		tmp.append(message);
+
+		return tmp.toString();
 	}
 }
