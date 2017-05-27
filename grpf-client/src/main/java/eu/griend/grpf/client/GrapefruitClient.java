@@ -21,7 +21,6 @@ package eu.griend.grpf.client;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -39,22 +38,22 @@ import eu.griend.grpf.util.ProcessUtil;
  */
 public class GrapefruitClient extends GrapefruitHandler implements Runnable {
 	public static final String NAME_CMD = "/var/opt/grpf/run/grpf.cmd";
+	public static final String NAME_LOG = "/var/opt/grpf/log/grpf-{0,date,YYYYMMdd}.log";
 	public static final String NAME_PID = "/var/opt/grpf/run/grpf.pid";
 
 	private File fileCmd = null;
 	private File filePid = null;
-			
+
 	//
 	// Default constructor
 	//
 	public GrapefruitClient() {
 		super();
-		
+
 		this.fileCmd = new File(NAME_CMD);
 		this.filePid = new File(NAME_PID);
 	}
 
-	
 	//
 	// Interface: java.lang.Runnable
 	//
@@ -65,41 +64,39 @@ public class GrapefruitClient extends GrapefruitHandler implements Runnable {
 
 		try {
 			if (this.filePid.exists()) {
-				System.out.println(LogUtil.format("Error: lock " + NAME_PID + " exist"));
-				System.exit(1);
-			}
+				LogUtil.log("Error: lock " + NAME_PID + " exist");
+			} else {
+				//
+				// Create lock
+				//
+				BufferedWriter writerPid = null;
+				writerPid = new BufferedWriter(new FileWriter(this.filePid));
+				writerPid.write(Long.valueOf(ProcessUtil.getPID()).toString());
+				writerPid.newLine();
+				writerPid.flush();
+				writerPid.close();
 
-			//
-			// Create lock
-			//
-			BufferedWriter writerPid = null;
-			writerPid = new BufferedWriter(new FileWriter(this.filePid));
-			writerPid.write(Long.valueOf(ProcessUtil.getPID()).toString());
-			writerPid.newLine();
-			writerPid.flush();
-			writerPid.close();
-			
-			this.filePid.deleteOnExit();
-			
-			fireCommandStartEvent(new GrapefruitEvent(this, "start"));
+				this.filePid.deleteOnExit();
 
-			readerCmd = new BufferedReader(new FileReader(this.fileCmd));
+				fireCommandStartEvent(new GrapefruitEvent(this, "start"));
 
-			while (!stop) {
-				command = readerCmd.readLine();
+				readerCmd = new BufferedReader(new FileReader(this.fileCmd));
 
-				if (command != null) {
-					if (command.equals("stop")) {
-						stop = true;
-					} else {
-						System.out.println(LogUtil.format(command));
+				while (!stop) {
+					command = readerCmd.readLine();
+
+					if (command != null) {
+						if (command.equals("stop")) {
+							fireCommandStopEvent(new GrapefruitEvent(this, "stop"));
+							stop = true;
+						} else if (command.equals("reload")) {
+							fireCommandReloadEvent(new GrapefruitEvent(this, "reload"));
+						} else {
+							LogUtil.log("command: " + command);
+						}
 					}
 				}
 			}
-
-			fireCommandStopEvent(new GrapefruitEvent(this, "stop"));
-		} catch (FileNotFoundException e) {
-			throw new RuntimeException(e);
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		} finally {
@@ -113,12 +110,13 @@ public class GrapefruitClient extends GrapefruitHandler implements Runnable {
 		}
 	}
 
-	
 	//
 	// Main
 	//
 	public static void main(String[] args) {
 		try {
+			LogUtil.setNameLog(NAME_LOG);
+
 			GrapefruitClient client = new GrapefruitClient();
 			client.addListener(new GrapefruitListener());
 			client.run();

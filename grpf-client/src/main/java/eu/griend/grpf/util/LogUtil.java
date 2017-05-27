@@ -18,21 +18,61 @@
  */
 package eu.griend.grpf.util;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.text.DateFormat;
+import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+/**
+ * Simple logging framework.
+ * 
+ * Do NOT use for a high volume production environment.
+ * 
+ * @author cvdg
+ */
 public class LogUtil {
 	private static final DateFormat FORMAT = new SimpleDateFormat("YYYY-MM-dd HH:mm:ss");
-	
-	public static String format(String message) {
-		StringBuilder tmp = new StringBuilder();
-		tmp.append(FORMAT.format(new Date()));
-		tmp.append(" grpf[");
-		tmp.append(ProcessUtil.getPID());
-		tmp.append("] ");
-		tmp.append(message);
+	private static String nameLog = null;
 
-		return tmp.toString();
+	public static void setNameLog(String name) {
+		LogUtil.nameLog = name;
+	}
+
+	public static void log(String message) {
+		Date now = new Date();
+		File file = null;
+		FileWriter fileWriter = null;
+		BufferedWriter bufferedWriter = null;
+		StringBuilder stringBuilder = null;
+
+		try {
+			file = new File(MessageFormat.format(nameLog, now));
+			fileWriter = new FileWriter(file, true);
+			bufferedWriter = new BufferedWriter(fileWriter);
+			stringBuilder = new StringBuilder();
+			stringBuilder.append(FORMAT.format(now));
+			stringBuilder.append(" grpf[");
+			stringBuilder.append(ProcessUtil.getPID());
+			stringBuilder.append("] ");
+			stringBuilder.append(message);
+
+			bufferedWriter.append(stringBuilder);
+			bufferedWriter.newLine();
+			bufferedWriter.flush();
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		} finally {
+			if (fileWriter != null) {
+				try {
+					fileWriter.close();
+				} catch (IOException e) {
+					throw new RuntimeException(e);
+				}
+			}
+		}
 	}
 }

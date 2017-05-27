@@ -29,14 +29,14 @@ public class GrapefruitListener implements Serializable {
 	}
 
 	public void commandReloadEvent(GrapefruitEvent event) {
-		System.out.println(LogUtil.format("reload"));
+		LogUtil.log("reload");
 	}
 	
 	public void commandStartEvent(GrapefruitEvent event) {
-		System.out.println(LogUtil.format("start"));
+		LogUtil.log("start");
 	}
 	
 	public void commandStopEvent(GrapefruitEvent event) {
-		System.out.println(LogUtil.format("stop"));
+		LogUtil.log("stop");
 	}
 }

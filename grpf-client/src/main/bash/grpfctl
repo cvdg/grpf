@@ -1,0 +1,3 @@
+#!/bin/bash
+
+echo $* > /var/opt/grpf/run/grpf.cmd

@@ -1,0 +1,12 @@
+[Unit]
+Description=Grapefruit
+After=network.target auditd.service
+
+[Service]
+ExecStart=/usr/bin/java -jar /opt/grpf/lib/grpf-client-0.0.1-SNAPSHOT.jar
+ExecStop=/opt/grpf/sbin/grpfctl stop
+
+
+[Install]
+WantedBy=multi-user.target
+Alias=grpf.service
