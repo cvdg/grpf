@@ -28,15 +28,15 @@ public class GrapefruitListener implements Serializable {
 	public GrapefruitListener() {
 	}
 
-	public void commandReloadEvent(GrapefruitEvent event) {
+	public void reloadEvent(GrapefruitEvent event) {
 		LogUtil.log("reload");
 	}
 	
-	public void commandStartEvent(GrapefruitEvent event) {
+	public void startEvent(GrapefruitEvent event) {
 		LogUtil.log("start");
 	}
 	
-	public void commandStopEvent(GrapefruitEvent event) {
+	public void stopEvent(GrapefruitEvent event) {
 		LogUtil.log("stop");
 	}
 }

@@ -37,22 +37,21 @@ public class GrapefruitHandler {
 		this.listeners.add(listener);
 	}
 
-	public void fireCommandReloadEvent(GrapefruitEvent event) {
+	public void fireReload(GrapefruitEvent event) {
 		for (GrapefruitListener listener : this.listeners) {
-			listener.commandReloadEvent(event);
+			listener.reloadEvent(event);
 		}
 	}
 
-
-	public void fireCommandStartEvent(GrapefruitEvent event) {
+	public void fireStart(GrapefruitEvent event) {
 		for (GrapefruitListener listener : this.listeners) {
-			listener.commandStartEvent(event);
+			listener.startEvent(event);
 		}
 	}
 
-	public void fireCommandStopEvent(GrapefruitEvent event) {
+	public void fireStop(GrapefruitEvent event) {
 		for (GrapefruitListener listener : this.listeners) {
-			listener.commandStopEvent(event);
+			listener.stopEvent(event);
 		}
 	}
 }

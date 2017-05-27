@@ -22,6 +22,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.text.DateFormat;
 import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
@@ -47,12 +48,15 @@ public class LogUtil {
 		File file = null;
 		FileWriter fileWriter = null;
 		BufferedWriter bufferedWriter = null;
+		PrintWriter printWriter = null;
 		StringBuilder stringBuilder = null;
 
 		try {
 			file = new File(MessageFormat.format(nameLog, now));
 			fileWriter = new FileWriter(file, true);
 			bufferedWriter = new BufferedWriter(fileWriter);
+			printWriter = new PrintWriter(bufferedWriter);
+
 			stringBuilder = new StringBuilder();
 			stringBuilder.append(FORMAT.format(now));
 			stringBuilder.append(" grpf[");
@@ -60,18 +64,13 @@ public class LogUtil {
 			stringBuilder.append("] ");
 			stringBuilder.append(message);
 
-			bufferedWriter.append(stringBuilder);
-			bufferedWriter.newLine();
-			bufferedWriter.flush();
+			printWriter.println(stringBuilder);
+			printWriter.flush();
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		} finally {
-			if (fileWriter != null) {
-				try {
-					fileWriter.close();
-				} catch (IOException e) {
-					throw new RuntimeException(e);
-				}
+			if (printWriter != null) {
+				printWriter.close();
 			}
 		}
 	}

@@ -18,8 +18,12 @@
  */
 package eu.griend.grpf.util;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.PrintWriter;
 import java.lang.management.ManagementFactory;
 import java.lang.management.RuntimeMXBean;
+import java.nio.file.FileAlreadyExistsException;
 
 public class ProcessUtil {
 	private static Object lock = new Object();
@@ -35,5 +39,18 @@ public class ProcessUtil {
 		}
 
 		return ProcessUtil.pid;
+	}
+	
+	public static void lock(File fileLock) throws FileAlreadyExistsException, FileNotFoundException {
+		if (fileLock.exists()) {
+			throw new FileAlreadyExistsException(fileLock.getAbsolutePath());
+		}
+		
+		PrintWriter lock = new PrintWriter(fileLock);
+		lock.println(ProcessUtil.getPID());
+		lock.flush();
+		lock.close();
+
+		fileLock.deleteOnExit();
 	}
 }

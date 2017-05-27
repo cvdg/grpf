@@ -19,10 +19,8 @@
 package eu.griend.grpf.client;
 
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 
 import eu.griend.grpf.event.GrapefruitEvent;
@@ -37,8 +35,8 @@ import eu.griend.grpf.util.ProcessUtil;
  *
  */
 public class GrapefruitClient extends GrapefruitHandler implements Runnable {
-	public static final String NAME_CMD = "/var/opt/grpf/run/grpf.cmd";
 	public static final String NAME_LOG = "/var/opt/grpf/log/grpf-{0,date,YYYYMMdd}.log";
+	public static final String NAME_CMD = "/var/opt/grpf/run/grpf.cmd";
 	public static final String NAME_PID = "/var/opt/grpf/run/grpf.pid";
 
 	private File fileCmd = null;
@@ -60,40 +58,32 @@ public class GrapefruitClient extends GrapefruitHandler implements Runnable {
 	public void run() {
 		boolean stop = false;
 		BufferedReader readerCmd = null;
+		String line = null;
 		String command = null;
 
 		try {
-			if (this.filePid.exists()) {
-				LogUtil.log("Error: lock " + NAME_PID + " exist");
-			} else {
-				//
-				// Create lock
-				//
-				BufferedWriter writerPid = null;
-				writerPid = new BufferedWriter(new FileWriter(this.filePid));
-				writerPid.write(Long.valueOf(ProcessUtil.getPID()).toString());
-				writerPid.newLine();
-				writerPid.flush();
-				writerPid.close();
+			ProcessUtil.lock(this.filePid);
 
-				this.filePid.deleteOnExit();
+			fireStart(new GrapefruitEvent(this, "start"));
 
-				fireCommandStartEvent(new GrapefruitEvent(this, "start"));
+			//
+			// Read commands from named pipe.
+			//
+			readerCmd = new BufferedReader(new FileReader(this.fileCmd));
 
-				readerCmd = new BufferedReader(new FileReader(this.fileCmd));
+			while (!stop) {
+				line = readerCmd.readLine();
 
-				while (!stop) {
-					command = readerCmd.readLine();
-
-					if (command != null) {
-						if (command.equals("stop")) {
-							fireCommandStopEvent(new GrapefruitEvent(this, "stop"));
-							stop = true;
-						} else if (command.equals("reload")) {
-							fireCommandReloadEvent(new GrapefruitEvent(this, "reload"));
-						} else {
-							LogUtil.log("command: " + command);
-						}
+				if (line != null) {
+					command = line.trim().split(" ")[0];
+					
+					if (command.equals("stop")) {
+						fireStop(new GrapefruitEvent(this, line));
+						stop = true;
+					} else if (command.equals("reload")) {
+						fireReload(new GrapefruitEvent(this, line));
+					} else {
+						LogUtil.log("unknown command: " + line);
 					}
 				}
 			}

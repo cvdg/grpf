@@ -22,10 +22,10 @@ import java.io.Serializable;
 
 public class GrapefruitEvent implements Serializable {
 	private static final long serialVersionUID = -8228249914366133603L;
-	private Object parent = null;
+	private GrapefruitHandler parent = null;
 	private String command = null;
 
-	public GrapefruitEvent(Object parent, String command) {
+	public GrapefruitEvent(GrapefruitHandler parent, String command) {
 		this.parent = parent;
 		this.command = command;
 	}
