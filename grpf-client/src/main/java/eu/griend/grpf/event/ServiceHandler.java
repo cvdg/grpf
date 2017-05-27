@@ -21,37 +21,43 @@ package eu.griend.grpf.event;
 import java.util.LinkedList;
 import java.util.List;
 
-import eu.griend.grpf.event.GrapefruitEvent;
-import eu.griend.grpf.event.GrapefruitListener;
+import eu.griend.grpf.event.ServiceEvent;
+import eu.griend.grpf.event.ServiceListener;
 
-public class GrapefruitHandler {
-	private List<GrapefruitListener> listeners = null;
+public class ServiceHandler {
+	private List<ServiceListener> listeners = null;
 
-	public GrapefruitHandler() {
+	public ServiceHandler() {
 		super();
 
-		this.listeners = new LinkedList<GrapefruitListener>();
+		this.listeners = new LinkedList<ServiceListener>();
 	}
 
-	public void addListener(GrapefruitListener listener) {
+	public void addListener(ServiceListener listener) {
 		this.listeners.add(listener);
 	}
 
-	public void fireReload(GrapefruitEvent event) {
-		for (GrapefruitListener listener : this.listeners) {
-			listener.reloadEvent(event);
+	public void fireServiceReloaded(String line) {
+		ServiceEvent evemt = new ServiceEvent(this, line);
+
+		for (ServiceListener listener : this.listeners) {
+			listener.serviceReloaded(evemt);
 		}
 	}
 
-	public void fireStart(GrapefruitEvent event) {
-		for (GrapefruitListener listener : this.listeners) {
-			listener.startEvent(event);
+	public void fireServiceStarted(String line) {
+		ServiceEvent event = new ServiceEvent(this, line);
+
+		for (ServiceListener listener : this.listeners) {
+			listener.serviceStarted(event);
 		}
 	}
 
-	public void fireStop(GrapefruitEvent event) {
-		for (GrapefruitListener listener : this.listeners) {
-			listener.stopEvent(event);
+	public void fireServiceStoped(String line) {
+		ServiceEvent event = new ServiceEvent(this, line);
+
+		for (ServiceListener listener : this.listeners) {
+			listener.serviceStoped(event);
 		}
 	}
 }

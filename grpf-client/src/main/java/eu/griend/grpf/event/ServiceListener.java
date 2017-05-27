@@ -18,23 +18,12 @@
  */
 package eu.griend.grpf.event;
 
-import java.io.Serializable;
+import java.util.EventListener;
 
-public class GrapefruitEvent implements Serializable {
-	private static final long serialVersionUID = -8228249914366133603L;
-	private GrapefruitHandler parent = null;
-	private String command = null;
+public interface ServiceListener extends EventListener {
+	public void serviceReloaded(ServiceEvent event);
 
-	public GrapefruitEvent(GrapefruitHandler parent, String command) {
-		this.parent = parent;
-		this.command = command;
-	}
+	public void serviceStarted(ServiceEvent event);
 
-	public Object getParent() {
-		return this.parent;
-	}
-
-	public String getCommand() {
-		return this.command;
-	}
+	public void serviceStoped(ServiceEvent event);
 }

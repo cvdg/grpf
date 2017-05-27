@@ -20,23 +20,21 @@ package eu.griend.grpf.event;
 
 import java.io.Serializable;
 
-import eu.griend.grpf.util.LogUtil;
+public class ServiceEvent implements Serializable {
+	private static final long serialVersionUID = -8228249914366133603L;
+	private ServiceHandler source = null;
+	private String line = null;
 
-public class GrapefruitListener implements Serializable {
-	private static final long serialVersionUID = -5929596847879314179L;
-
-	public GrapefruitListener() {
+	public ServiceEvent(ServiceHandler source, String line) {
+		this.source = source;
+		this.line = line;
 	}
 
-	public void reloadEvent(GrapefruitEvent event) {
-		LogUtil.log("reload");
+	public ServiceHandler getSource() {
+		return this.source;
 	}
-	
-	public void startEvent(GrapefruitEvent event) {
-		LogUtil.log("start");
-	}
-	
-	public void stopEvent(GrapefruitEvent event) {
-		LogUtil.log("stop");
+
+	public String getLine() {
+		return this.line;
 	}
 }

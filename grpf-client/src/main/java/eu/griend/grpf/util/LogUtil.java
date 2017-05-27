@@ -37,10 +37,10 @@ import java.util.Date;
  */
 public class LogUtil {
 	private static final DateFormat FORMAT = new SimpleDateFormat("YYYY-MM-dd HH:mm:ss");
-	private static String nameLog = null;
+	private static String name = null;
 
-	public static void setNameLog(String name) {
-		LogUtil.nameLog = name;
+	public static void setName(String name) {
+		LogUtil.name = name;
 	}
 
 	public static void log(String message) {
@@ -52,7 +52,7 @@ public class LogUtil {
 		StringBuilder stringBuilder = null;
 
 		try {
-			file = new File(MessageFormat.format(nameLog, now));
+			file = new File(MessageFormat.format(LogUtil.name, now));
 			fileWriter = new FileWriter(file, true);
 			bufferedWriter = new BufferedWriter(fileWriter);
 			printWriter = new PrintWriter(bufferedWriter);

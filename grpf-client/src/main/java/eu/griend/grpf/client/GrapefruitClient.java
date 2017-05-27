@@ -23,9 +23,9 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 
-import eu.griend.grpf.event.GrapefruitEvent;
-import eu.griend.grpf.event.GrapefruitHandler;
-import eu.griend.grpf.event.GrapefruitListener;
+import eu.griend.grpf.event.ServiceEvent;
+import eu.griend.grpf.event.ServiceHandler;
+import eu.griend.grpf.event.ServiceListener;
 import eu.griend.grpf.util.LogUtil;
 import eu.griend.grpf.util.ProcessUtil;
 
@@ -34,12 +34,12 @@ import eu.griend.grpf.util.ProcessUtil;
  * @author cvdg
  *
  */
-public class GrapefruitClient extends GrapefruitHandler implements Runnable {
+public class GrapefruitClient extends ServiceHandler implements Runnable {
 	public static final String NAME_LOG = "/var/opt/grpf/log/grpf-{0,date,YYYYMMdd}.log";
-	public static final String NAME_CMD = "/var/opt/grpf/run/grpf.cmd";
+	public static final String NAME_CTL = "/var/opt/grpf/run/grpf.ctl";
 	public static final String NAME_PID = "/var/opt/grpf/run/grpf.pid";
 
-	private File fileCmd = null;
+	private File fileCtl = null;
 	private File filePid = null;
 
 	//
@@ -48,7 +48,7 @@ public class GrapefruitClient extends GrapefruitHandler implements Runnable {
 	public GrapefruitClient() {
 		super();
 
-		this.fileCmd = new File(NAME_CMD);
+		this.fileCtl = new File(NAME_CTL);
 		this.filePid = new File(NAME_PID);
 	}
 
@@ -57,31 +57,31 @@ public class GrapefruitClient extends GrapefruitHandler implements Runnable {
 	//
 	public void run() {
 		boolean stop = false;
-		BufferedReader readerCmd = null;
+		BufferedReader ctl = null;
 		String line = null;
 		String command = null;
 
 		try {
 			ProcessUtil.lock(this.filePid);
 
-			fireStart(new GrapefruitEvent(this, "start"));
+			fireServiceStarted("start");
 
 			//
 			// Read commands from named pipe.
 			//
-			readerCmd = new BufferedReader(new FileReader(this.fileCmd));
+			ctl = new BufferedReader(new FileReader(this.fileCtl));
 
 			while (!stop) {
-				line = readerCmd.readLine();
+				line = ctl.readLine();
 
 				if (line != null) {
 					command = line.trim().split(" ")[0];
-					
+
 					if (command.equals("stop")) {
-						fireStop(new GrapefruitEvent(this, line));
+						fireServiceStoped(line);
 						stop = true;
 					} else if (command.equals("reload")) {
-						fireReload(new GrapefruitEvent(this, line));
+						fireServiceReloaded(line);
 					} else {
 						LogUtil.log("unknown command: " + line);
 					}
@@ -90,9 +90,9 @@ public class GrapefruitClient extends GrapefruitHandler implements Runnable {
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		} finally {
-			if (readerCmd != null) {
+			if (ctl != null) {
 				try {
-					readerCmd.close();
+					ctl.close();
 				} catch (IOException e) {
 					throw new RuntimeException(e);
 				}
@@ -105,10 +105,22 @@ public class GrapefruitClient extends GrapefruitHandler implements Runnable {
 	//
 	public static void main(String[] args) {
 		try {
-			LogUtil.setNameLog(NAME_LOG);
+			LogUtil.setName(NAME_LOG);
 
 			GrapefruitClient client = new GrapefruitClient();
-			client.addListener(new GrapefruitListener());
+			client.addListener(new ServiceListener() {
+				public void serviceStoped(ServiceEvent event) {
+					LogUtil.log(event.getLine());
+				}
+
+				public void serviceStarted(ServiceEvent event) {
+					LogUtil.log(event.getLine());
+				}
+
+				public void serviceReloaded(ServiceEvent event) {
+					LogUtil.log(event.getLine());
+				}
+			});
 			client.run();
 		} catch (Exception e) {
 			System.err.println(e.getLocalizedMessage());

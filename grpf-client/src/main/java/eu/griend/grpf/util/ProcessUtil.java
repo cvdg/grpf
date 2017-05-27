@@ -40,17 +40,17 @@ public class ProcessUtil {
 
 		return ProcessUtil.pid;
 	}
-	
-	public static void lock(File fileLock) throws FileAlreadyExistsException, FileNotFoundException {
-		if (fileLock.exists()) {
-			throw new FileAlreadyExistsException(fileLock.getAbsolutePath());
+
+	public static void lock(File file) throws FileAlreadyExistsException, FileNotFoundException {
+		if (file.exists()) {
+			throw new FileAlreadyExistsException(file.getAbsolutePath());
 		}
-		
-		PrintWriter lock = new PrintWriter(fileLock);
+
+		PrintWriter lock = new PrintWriter(file);
 		lock.println(ProcessUtil.getPID());
 		lock.flush();
 		lock.close();
 
-		fileLock.deleteOnExit();
+		file.deleteOnExit();
 	}
 }
