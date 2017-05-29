@@ -20,12 +20,17 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.UUID;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import eu.griend.grpf.entity.NodeEntity;
 
 @Service
 public class NodeService {
+	private Logger logger = LoggerFactory.getLogger(NodeService.class);
+
+
 	public List<NodeEntity> nodes = null;
 
 	public NodeService() {
@@ -42,6 +47,8 @@ public class NodeService {
 		}
 
 		this.nodes.add(node);
+		
+		this.logger.info("create node: {}", node.getUUID().toString());
 	}
 
 	public NodeEntity readNode(UUID uuid) {
@@ -60,6 +67,8 @@ public class NodeService {
 			throw new IllegalArgumentException(uuid.toString());
 		}
 
+		this.logger.debug("read node: {}", uuid.toString());
+		
 		return node;
 	}
 
@@ -79,6 +88,8 @@ public class NodeService {
 			throw new IllegalArgumentException(hostname);
 		}
 
+		this.logger.debug("read node: {}", node.getUUID().toString());
+		
 		return node;
 	}
 
@@ -96,6 +107,8 @@ public class NodeService {
 		if (!found) {
 			throw new IllegalArgumentException(uuid.toString());
 		}
+		
+		this.logger.info("update node: {}", uuid.toString());
 	}
 
 	public void deleteNode(UUID uuid) {
@@ -112,5 +125,7 @@ public class NodeService {
 		if (!found) {
 			throw new IllegalArgumentException(uuid.toString());
 		}
+		
+		this.logger.info("delete node: {}", uuid.toString());
 	}
 }
